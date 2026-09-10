@@ -10,7 +10,8 @@ class Product extends Controller
 
         // Blocks ALL actions in this controller for unauthenticated users
         if (empty($_SESSION['user_id'])) {
-            redirect('login');
+            header('Location: /login');
+            exit;
         }
 
         $this->call->model('ProductModel');
@@ -36,7 +37,8 @@ class Product extends Controller
             'quantity'     => $_POST['quantity'],
         ];
         $this->ProductModel->create($data);
-        redirect('products');
+        header('Location: /products');
+        exit;
     }
 
     public function edit($id)
@@ -54,12 +56,14 @@ class Product extends Controller
             'quantity'     => $_POST['quantity'],
         ];
         $this->ProductModel->update($id, $data);
-        redirect('products');
+        header('Location: /products');
+        exit;
     }
 
     public function delete($id)
     {
         $this->ProductModel->delete($id);
-        redirect('products');
+        header('Location: /products');
+        exit;
     }
 }

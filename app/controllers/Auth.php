@@ -13,7 +13,8 @@ class Auth extends Controller
     public function login()
     {
         if (!empty($_SESSION['user_id'])) {
-            redirect('products');
+            header('Location: /products');
+            exit;
         }
         $this->call->view('auth/login');
     }
@@ -29,7 +30,8 @@ class Auth extends Controller
         if ($user && $password === $user->password) {
             $_SESSION['user_id']  = $user->id;
             $_SESSION['username'] = $user->username;
-            redirect('products');
+            header('Location: /products');
+            exit;
         } else {
             $data['error'] = 'Invalid username or password.';
             $this->call->view('auth/login', $data);
@@ -40,6 +42,7 @@ class Auth extends Controller
     {
         session_unset();
         session_destroy();
-        redirect('login');
+        header('Location: /login');
+        exit;
     }
 }
