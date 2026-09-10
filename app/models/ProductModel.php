@@ -3,14 +3,20 @@ class ProductModel extends Model
 {
     protected $table = 'products';
 
+    public function __construct()
+    {
+        parent::__construct();
+        $this->call->library('database');
+    }
+
     public function getAll()
     {
-        return $this->db->table($this->table)->get()->getResult();
+        return $this->db->table($this->table)->result();
     }
 
     public function find($id)
     {
-        return $this->db->table($this->table)->where('id', $id)->get()->getRow();
+        return $this->db->table($this->table)->where('id', $id)->row();
     }
 
     public function create($data)
@@ -26,23 +32,5 @@ class ProductModel extends Model
     public function delete($id)
     {
         return $this->db->table($this->table)->where('id', $id)->delete();
-    }
-}
-class UserModel extends Model
-{
-    protected $table = 'users';
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->call->library('database');
-    }
-
-    public function findByUsername($username)
-    {
-        return $this->db->table($this->table)
-                         ->where('username', $username)
-                         ->get()
-                         ->getRow();
     }
 }

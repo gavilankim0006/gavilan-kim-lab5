@@ -58,8 +58,10 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 */
 
 
+
+
 $database['main'] = array(
-    'driver'   => 'mysqli',
+    'driver'   => 'mysql',
     'hostname' => getenv('DB_HOST') ?: '',
     'port'     => getenv('DB_PORT') ?: '',
     'username' => getenv('DB_USERNAME') ?: '',
@@ -68,11 +70,6 @@ $database['main'] = array(
     'charset'  => 'utf8mb4',
     'dbprefix' => '',
     'path'     => '',
-    // SSL — required by Aiven
-    'encrypt'  => array(
-        'ssl_ca'     => __DIR__ . '/ca.pem',
-        'ssl_verify' => false
-    )
+    'ssl_ca'   => __DIR__ . '/ca.pem',
 );
 
-?>
