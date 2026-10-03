@@ -68,3 +68,6 @@ $router->get('/rollback', 'MigrationController::rollback');
 $router->get('/rollback-all', 'MigrationController::rollback_all');
 $router->get('/refresh', 'MigrationController::refresh');
 $router->get('/status', 'MigrationController::status');
+
+// Handle CORS preflight for all API routes
+$router->options('/api/*', 'ApiController::preflight');
