@@ -1,284 +1,170 @@
-# LavaLust Framework
+# Product Management System (Lab Exercise 6)
 
-> A lightweight, fast PHP framework built for developers who want clean MVC architecture without unnecessary complexity or performance overhead.
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![PHP Version](https://img.shields.io/badge/PHP-%3E%3D7.4-8892BF)](https://www.php.net/)
-[![GitHub Stars](https://img.shields.io/github/stars/ronmarasigan/lavalust?style=flat)](https://github.com/ronmarasigan/lavalust/stargazers)
+A full-stack CRUD application with **React + Vite** frontend and **LavaLust API** backend, using **Aiven MySQL** database and deployed to **Render**.
 
 ---
 
-## Overview
+## Quick Start (Local Development)
 
-**LavaLust** is an open-source PHP framework that follows the **MVC (Model–View–Controller)** architectural pattern. It is designed for developers who need a structured, maintainable, and scalable foundation — without the bloat of heavier modern frameworks.
+### 1. Start the API
+```bash
+cd C:/xampp/htdocs/crudlab6
+php lava serve --port=3000
+```
+API runs at `http://localhost:3000`
 
-Whether you are building a simple web application, a REST API, or a teaching project, LavaLust provides the right tools with minimal friction.
+### 2. Start the Frontend
+```bash
+cd C:/xampp/htdocs/crudlab6/frontend
+npm install   # if not already done
+npm run dev
+```
+Frontend runs at `http://localhost:5173`
 
----
-
-## Features
-
-| Feature | Description |
-|---|---|
-| **MVC Architecture** | Clean separation of Models, Views, and Controllers for organized, maintainable code |
-| **Built-in Routing** | Flexible URL routing that maps requests to controllers with minimal configuration |
-| **Libraries & Helpers** | Reusable components for sessions, forms, validation, and database access |
-| **Modular Design** | Scalable structure that supports clean organization as your application grows |
-| **REST API Support** | First-class support for building RESTful APIs using LavaLust conventions |
-| **ORM-like Models** | Simplified, readable database interaction without a heavy abstraction layer |
-
----
-
-## Requirements
-
-- PHP 7.4 or higher
-- A web server with URL rewriting support (Apache `.htaccess` or Nginx config)
-- Composer (optional, for dependency management)
+### 3. Login
+- **Username:** `admin`
+- **Password:** `admin123`
 
 ---
 
-## Installation
+## API Endpoints
 
-**Clone the repository:**
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/auth/login` | ❌ | Login, returns JWT tokens |
+| POST | `/api/auth/refresh` | ❌ | Refresh access token |
+| POST | `/api/auth/logout` | ❌ | Revoke refresh token |
+| GET | `/api/auth/me` | ✅ | Get current user |
+| GET | `/api/products` | ✅ | List all products |
+| GET | `/api/products/{id}` | ✅ | Get single product |
+| POST | `/api/products` | ✅ | Create product |
+| PUT | `/api/products/{id}` | ✅ | Update product |
+| PATCH | `/api/products/{id}` | ✅ | Update product |
+| DELETE | `/api/products/{id}` | ✅ | Delete product |
+
+---
+
+## Deployment to Render
+
+### Backend (API)
+
+1. **Create a GitHub repo** for this project (or push current)
+
+2. **Create a Docker Web Service** on Render:
+   - Connect your GitHub repo
+   - Set `plan: free`
+   - Add these **secret** environment variables in Render dashboard:
+     - `DB_HOST` — Aiven connection host
+     - `DB_PORT` — Aiven port (e.g., `12561`)
+     - `DB_USERNAME` — Aiven username (e.g., `avnadmin`)
+     - `DB_PASSWORD` — Aiven password
+     - `DB_NAME` — Database name (e.g., `defaultdb`)
+     - `JWT_SECRET` — Generate a 32+ character random string
+     - `REFRESH_TOKEN_KEY` — Generate another 32+ character random string
+     - `ALLOW_ORIGIN` — Your frontend URL (e.g., `https://your-frontend.onrender.com`)
+     - `APP_ENV` — `production`
+
+3. Deploy — Render builds the Docker container and runs the API.
+
+### Frontend (React)
+
+1. **Build the frontend:**
+   ```bash
+   cd frontend
+   npm install
+   npm run build
+   ```
+
+2. **Create a Static Site** on Render:
+   - Connect your repo (or a separate frontend repo)
+   - Build command: `npm install && npm run build`
+   - Publish directory: `dist`
+
+3. Add environment variable:
+   - `VITE_API_URL` — Your Render API URL (e.g., `https://crudlab6-api.onrender.com`)
+
+4. Deploy.
+
+---
+
+## Database (Aiven MySQL)
+
+- The app uses Aiven MySQL with SSL/TLS
+- Required tables are created via migrations (run locally first or add migration runner to Docker):
+  ```bash
+  php lava migration run
+  ```
+
+---
+
+## Migration CLI Command (Lab Activity)
 
 ```bash
-git clone https://github.com/ronmarasigan/lavalust.git
-cd lavalust
-```
-
-**Or download a release directly:**
-
-```bash
-wget https://github.com/ronmarasigan/lavalust/archive/refs/heads/main.zip
-unzip main.zip
-```
-
-Configure your web server to point to the project root and ensure `mod_rewrite` (Apache) or equivalent is enabled.
-
----
-
-## Quick Start
-
-### 1. Define a Route
-
-**File:** `app/config/routes.php`
-
-```php
-$router->get('/', 'Welcome::index');
-$router->get('/about', 'Welcome::about');
-$router->post('/users/store', 'Users::store');
-```
-
-### 2. Create a Controller
-
-**File:** `app/controllers/Welcome.php`
-
-```php
-<?php
-
-class Welcome extends Controller
-{
-    public function index()
-    {
-        $data['title'] = 'Home';
-        $this->call->view('welcome', $data);
-    }
-
-    public function about()
-    {
-        $this->call->view('about');
-    }
-}
-```
-
-### 3. Create a View
-
-**File:** `app/views/welcome.php`
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title><?= $title ?></title>
-</head>
-<body>
-    <h1>Welcome to LavaLust Framework</h1>
-    <p>Lightweight. Fast. MVC.</p>
-</body>
-</html>
-```
-
-### 4. Create a Model
-
-**File:** `app/models/User_model.php`
-
-```php
-<?php
-
-class User_model extends Model
-{
-    protected $table = 'users';
-
-    public function getAll()
-    {
-        return $this->db->table($this->table)->get()->getResult();
-    }
-
-    public function findById(int $id)
-    {
-        return $this->db->table($this->table)
-                        ->where('id', $id)
-                        ->get()
-    }
-}
+php lava migration run          # Run pending migrations
+php lava migration status       # Show migration status
+php lava migration create-migration <name>  # Create new migration
+php lava migration rollback     # Rollback last migration
+php lava migration rollback-all # Rollback all
+php lava migration refresh      # Refresh (rollback all + run)
 ```
 
 ---
 
-## Project Structure
+## Files Structure
 
 ```
-lavalust/
+crudlab6/
 ├── app/
-│   ├── config/          # Application configuration (database, routes, etc.)
-│   ├── controllers/     # Controller classes
-│   ├── models/          # Model classes
-│   ├── views/           # View templates
-│   └── libraries/       # Custom libraries and helpers
-├── scheme/              # Core framework files (do not modify)
-├── public/              # Publicly accessible entry point
-│   └── index.php
-└── runtime/            # Cache, logs, and uploads (must be writable)
+│   ├── controllers/
+│   │   ├── ApiController.php    # Base API controller
+│   │   ├── AuthApi.php          # Login/refresh/logout
+│   │   ├── ProductApi.php       # CRUD operations
+│   │   └── MigrationController.php
+│   ├── models/
+│   │   ├── ProductModel.php
+│   │   └── UserModel.php
+│   ├── commands/
+│   │   └── Migration.php        # CLI migration command
+│   ├── migrations/
+│   │   ├── 000_initial_setup.php
+│   │   ├── 001_create_users_table.php
+│   │   ├── 002_create_refresh_tokens_table.php
+│   │   └── 003_create_products_table.php
+│   └── config/
+│       ├── api.php              # JWT + CORS config
+│       ├── database.php
+│       ├── routes.php
+│       └── migration.php
+├── frontend/                    # React + Vite app
+│   ├── src/
+│   │   ├── api/                 # Axios client + products API
+│   │   ├── context/             # Auth context
+│   │   ├── components/          # Navbar, ProtectedRoute
+│   │   └── pages/               # Login, ProductList, ProductForm
+│   └── dist/                    # Production build
+├── docker/
+│   └── entrypoint.sh            # Docker entrypoint
+├── .env.example
+├── Dockerfile
+└── render.yaml                  # Render blueprint
 ```
 
 ---
 
-## Configuration
+## Screenshots Required (for submission)
 
-### Database
-
-**File:** `app/config/database.php`
-
-```php
-$database['main'] = array(
-    'driver'	=> '',
-    'hostname'	=> getenv('DB_HOST') ?: '',
-    'port'		=> getenv('DB_PORT') ?: '',
-    'username'	=> getenv('DB_USERNAME') ?: '',
-    'password'	=> getenv('DB_PASSWORD') ?: '',
-    'database'	=> getenv('DB_NAME') ?: '',
-    'charset'	=> '',
-    'dbprefix'	=> '',
-    // Optional for SQLite
-    'path'      => ''
-);
-```
-
-### Base URL
-
-**File:** `app/config/config.php`
-
-```php
-$config['base_url'] = 'http://localhost:3000/';
-```
+1. **Login page** — with admin/admin123
+2. **Product list** — showing all products
+3. **Add product** — form to create new product
+4. **Edit product** — form to update existing product
+5. **Delete product** — confirmation and result
+6. **Aiven database** — showing tables (migrations, users, refresh_tokens, products)
 
 ---
 
-## Building a REST API
+## Notes
 
-LavaLust supports REST API development out of the box. Controllers can return JSON responses for API endpoints.
-
-```php
-<?php
-
-class Api extends Controller
-{
-    $this->call->library('api');
-
-    public function users()
-    {
-        $this->api->require_method('GET');
-        $auth = $this->api->require_jwt(); 
-
-        $this->call->model('User_model');
-        $users = $this->User_model->getAll();
-
-        $this->api->respond(['data' => $users]);
-    }
-}
-```
-
-Route definition:
-
-```php
-$router->get('/api/users', 'Api::users');
-```
-
----
-
-## Philosophy
-
-LavaLust is built on a single principle: **minimal core, maximum control.**
-
-Modern frameworks often add layers of abstraction that benefit large enterprise teams but get in the way of developers who want to understand exactly what their code is doing. LavaLust provides structure and utilities without hiding the underlying logic — making it an excellent choice for:
-
-- **Rapid prototyping** — Get an application running in minutes
-- **Learning MVC** — Understand how each architectural layer works
-- **Lightweight production apps** — Deploy without dragging in unused dependencies
-- **Teaching PHP development** — Clear conventions, readable source code
-
----
-
-## Documentation
-
-Full documentation is available at **[https://lavalust.netlify.app](https://lavalust.netlify.app)**
-
-Topics covered include:
-
-- Installation and server configuration
-- Routing: static, dynamic, and grouped routes
-- Controllers and request handling
-- Models and query builder
-- Views, layouts, and partials
-- Built-in libraries (sessions, form validation, file upload)
-- Helper functions
-- REST API development
-- Security best practices
-
----
-
-## Contributing
-
-Contributions are welcome. To contribute:
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature-name`
-3. Commit your changes: `git commit -m "Add your feature description"`
-4. Push to your branch: `git push origin feature/your-feature-name`
-5. Open a pull request against `main`
-
-Please ensure your code follows the existing style conventions and includes relevant documentation or comments where appropriate.
-
----
-
-## Roadmap
-
-- [ ] CLI tool for generating controllers, models, and migrations
-- [ ] Middleware support
-- [ ] Improved query builder with relationship support
-- [ ] Enhanced error handling and debugging tools
-
----
-
-## License
-
-LavaLust Framework is open-source software licensed under the **[MIT License](https://opensource.org/licenses/MIT)**.
-
----
-
-## Links
-
-- **GitHub Repository:** [https://github.com/ronmarasigan/lavalust](https://github.com/ronmarasigan/lavalust)
-- **Documentation:** [https://lavalust.netlify.app](https://lavalust.netlify.app)
-- **Report an Issue:** [https://github.com/ronmarasigan/lavalust/issues](https://github.com/ronmarasigan/lavalust/issues)
+- **Never commit `.env`** — contains secrets. Use `.env.example` as template.
+- The API returns JSON only (no server-rendered HTML).
+- JWT tokens expire after 15 minutes; the frontend auto-refreshes.
+- The existing `users` table uses **plaintext** password for backward compatibility, but new users should use bcrypt.

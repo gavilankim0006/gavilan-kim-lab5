@@ -15,4 +15,11 @@ class UserModel extends Model
                          ->where('username', $username)
                          ->row();
     }
+
+    public function findById($id)
+    {
+        return $this->db->table($this->table)
+                         ->where('id', $id)
+                         ->row();
+    }
 }

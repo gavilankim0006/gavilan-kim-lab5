@@ -44,16 +44,27 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 */
 /** @var object $router **/
 
+// API health check
+$router->get('/', 'ApiController::index');
 
+// Authentication (public)
+$router->post('/api/auth/login', 'AuthApi::login');
+$router->post('/api/auth/refresh', 'AuthApi::refresh');
+$router->post('/api/auth/logout', 'AuthApi::logout');
+$router->get('/api/auth/me', 'AuthApi::me');
 
-$router->get('/', 'Auth::login');
-$router->get('/login', 'Auth::login');
-$router->post('/login', 'Auth::authenticate');
-$router->get('/logout', 'Auth::logout');
+// Product CRUD (protected by JWT inside ProductApi)
+$router->get('/api/products', 'ProductApi::index');
+$router->get('/api/products/{id}', 'ProductApi::show');
+$router->post('/api/products', 'ProductApi::store');
+$router->put('/api/products/{id}', 'ProductApi::update');
+$router->patch('/api/products/{id}', 'ProductApi::update');
+$router->delete('/api/products/{id}', 'ProductApi::destroy');
 
-$router->get('/products', 'Product::index');
-$router->get('/products/create', 'Product::create');
-$router->post('/products/store', 'Product::store');
-$router->get('/products/edit/{id}', 'Product::edit');
-$router->post('/products/update/{id}', 'Product::update');
-$router->get('/products/delete/{id}', 'Product::delete');
+// Migration Routes (Laboratory Activity)
+$router->get('/create-migration/{migration_class}', 'MigrationController::create_migration');
+$router->get('/migrate', 'MigrationController::migrate');
+$router->get('/rollback', 'MigrationController::rollback');
+$router->get('/rollback-all', 'MigrationController::rollback_all');
+$router->get('/refresh', 'MigrationController::refresh');
+$router->get('/status', 'MigrationController::status');

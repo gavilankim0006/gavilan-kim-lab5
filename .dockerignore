@@ -1,0 +1,12 @@
+.git
+.gitignore
+.env
+Instruction
+frontend/node_modules
+frontend/dist
+runtime/cache
+runtime/logs
+runtime/session
+*.md
+.DS_Store
+Thumbs.db

@@ -1,0 +1,35 @@
+# Blueprint for the LavaLust API on Render.
+# Create the service from this file, then set secret env vars in the dashboard.
+# Do not put database passwords in this file.
+
+services:
+  - type: web
+    name: crudlab6-api
+    runtime: docker
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_URL
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: REFRESH_TOKEN_KEY
+        generateValue: true
+      - key: ALLOW_ORIGIN
+        sync: false
+      - key: JWT_ISSUER
+        value: crudlab6
+      - key: JWT_AUDIENCE
+        value: crudlab6-clients
