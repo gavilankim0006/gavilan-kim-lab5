@@ -93,7 +93,8 @@ $config['refresh_token_key'] = getenv('REFRESH_TOKEN_KEY') ?: '0bNvxjPFJ6dhi1Ttf
 |--------------------------------------------------------------------------
 |
 | Access-Control-Allow-Origin - change this to your domain if
-| already deployed.
+| already deployed. Supports comma-separated list for multiple origins.
+| Example: https://app.example.com,https://admin.example.com
 |
 */
 $config['allow_origin'] = getenv('ALLOW_ORIGIN') ?: '*';

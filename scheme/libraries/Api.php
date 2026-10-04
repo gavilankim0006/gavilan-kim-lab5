@@ -76,13 +76,6 @@ class Api
     protected $refresh_token_expiration;
 
     /**
-     * Allow Origin
-     *
-     * @var string
-     */
-    protected $allow_origin;
-
-    /**
      * Secret Code
      *
      * @var string
@@ -147,7 +140,6 @@ class Api
         $this->refresh_token_expiration = (int) (config_item('refresh_token_expiration') ?? $this->refresh_token_expiration);
         $this->jwt_secret               = config_item('jwt_secret');
         $this->refresh_token_key        = config_item('refresh_token_key');
-        $this->allow_origin             = config_item('allow_origin');
 
         // JWT config
         $this->jwt_issuer              = config_item('jwt_issuer') ?? $this->jwt_issuer;
@@ -165,44 +157,13 @@ class Api
             show_error('Refresh token key is missing or too weak.');
         }
 
-        $this->handle_cors();
-
-        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-            http_response_code(204);
-            exit;
-        }
+        // CORS is now handled globally by CorsMiddleware
+        // OPTIONS preflight is also handled by the middleware
     }
 
     // --------------------------
     // Basic Utilities
     // --------------------------
-    /**
-     * handle cors
-     *
-     * @return void
-     */
-    public function handle_cors()
-    {
-        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-
-        if (is_array($this->allow_origin)) {
-            $allowed = in_array($origin, $this->allow_origin, true);
-        } else {
-            $allowed = $this->allow_origin === '*' || $this->allow_origin === $origin;
-        }
-
-        if ($allowed && $origin) {
-            header("Access-Control-Allow-Origin: $origin");
-            header('Access-Control-Allow-Credentials: true');
-        } elseif ($this->allow_origin === '*') {
-            header('Access-Control-Allow-Origin: *');
-        }
-
-        header('Access-Control-Allow-Headers: Authorization, Content-Type, X-Requested-With, X-RateLimit-*');
-        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS');
-        header('Access-Control-Max-Age: 3600');
-        header('Content-Type: application/json; charset=UTF-8');
-    }
 
     /**
      * API body

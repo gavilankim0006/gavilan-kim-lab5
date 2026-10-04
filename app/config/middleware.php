@@ -41,4 +41,8 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 | Used for adding middlewares
 |
 */
-$config['middlewares'] = [];
+require_once APP_DIR . 'kernel/CorsMiddleware.php';
+
+$config['middlewares'] = [
+    'cors' => new CorsMiddleware(),
+];

@@ -44,6 +44,9 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 */
 /** @var object $router **/
 
+// Apply CORS middleware globally to all routes
+$router->add_global_middleware('cors');
+
 // API health check
 $router->get('/', 'ApiController::index');
 
@@ -68,6 +71,3 @@ $router->get('/rollback', 'MigrationController::rollback');
 $router->get('/rollback-all', 'MigrationController::rollback_all');
 $router->get('/refresh', 'MigrationController::refresh');
 $router->get('/status', 'MigrationController::status');
-
-// Handle CORS preflight for all API routes
-$router->options('/api/*', 'ApiController::preflight');

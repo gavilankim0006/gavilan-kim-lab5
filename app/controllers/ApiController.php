@@ -28,15 +28,4 @@ class ApiController extends Controller
             'message' => 'LavaLust API is running.',
         ]);
     }
-
-    /**
-     * CORS preflight handler — echoes the required headers and exits.
-     * The `api` library's handle_cors() runs in its constructor, so all
-     * headers are already set; we just need to exit cleanly.
-     */
-    public function preflight()
-    {
-        http_response_code(204);
-        exit;
-    }
 }

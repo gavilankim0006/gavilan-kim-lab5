@@ -68,6 +68,49 @@ if (file_exists(ROOT_DIR . '.env')) {
 }
 
 /**
+ * Send CORS headers before routing so OPTIONS preflight requests never fall
+ * through to a 404 before application middleware or controllers can run.
+ */
+function _send_cors_headers()
+{
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    $allow_origin = getenv('ALLOW_ORIGIN') ?: '*';
+    $allowed_origins = array_filter(array_map('trim', explode(',', $allow_origin)));
+
+    if (empty($allowed_origins)) {
+        $allowed_origins = ['*'];
+    }
+
+    $allows_any_origin = in_array('*', $allowed_origins, true);
+    $origin_is_allowed = $origin !== '' && ($allows_any_origin || in_array($origin, $allowed_origins, true));
+
+    if ($origin_is_allowed) {
+        header('Access-Control-Allow-Origin: ' . $origin);
+        header('Vary: Origin');
+    } elseif ($allows_any_origin) {
+        header('Access-Control-Allow-Origin: *');
+    }
+
+    if ($origin_is_allowed && !$allows_any_origin) {
+        header('Access-Control-Allow-Credentials: true');
+    }
+
+    $requested_headers = $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'] ?? 'Authorization, Content-Type, X-Requested-With';
+
+    header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    header('Access-Control-Allow-Headers: ' . $requested_headers);
+    header('Access-Control-Expose-Headers: X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset');
+    header('Access-Control-Max-Age: 3600');
+
+    if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
+        http_response_code(204);
+        exit;
+    }
+}
+
+_send_cors_headers();
+
+/**
  * LavaLust BASE URL of your APPLICATION
  */
 define('BASE_URL', config_item('base_url'));
